@@ -1,0 +1,54 @@
+Datalogger firmware ver OPC-N3-02(UNOr3)(res divider on SS)
+Date and Time: date and time
+1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó1ó
+OPC-N3 Iss1.1 FirmwareVer=1.17a...........................BS
+BinBoundaries(ADC);14;40;80;120;145;215;340;590;846;1363;2029;2848;4119;5527;7076;8624;10204;11815;13457;15897;18305;20698;22966;25140;27158
+BinBoundaries(um);0.35;0.46;0.66;1.00;1.30;1.70;2.30;3.00;4.00;5.20;6.50;8.00;10.00;12.00;14.00;16.00;18.00;20.00;22.00;25.00;28.00;31.00;34.00;37.00;40.00
+BinWeightings;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65
+M_A(um);1.00
+M_B(um);2.50
+M_C(um);10.00
+MaxTOF(us);85.31
+AMSamplingIntervalCount;1
+AMIdleIntervalCount;0
+AMMaxDataArraysInFile;61798
+AMFanOnInIdle;0
+AMLaserOnInIdle;0
+TOFtoSFRfactor;58
+PVP(us);1.00
+BinWeightingIndex;2
+FanDAC_ON;1
+LaserDAC_ON;1
+FanDACval;255
+LaserDACval;130
+LaserSwitch;1
+AutoGainToggle;1
+Datalogger firmware ver OPC-N3-02(UNOr3)(res divider on SS)
+Date and Time: date and time
+OPC-N3 177890303                                            
+OPC-N3 Iss1.1 FirmwareVer=1.17a...........................BS
+Datalogger firmware ver OPC-N3-02(UNOr3)(res divider on SS)
+Date and Time: date and time
+OPC-N3 177890303                                            
+OPC-N3 Iss1.1 FirmwareVer=1.17a...........................BS
+BinBoundaries(ADC);14;40;80;120;145;215;340;590;846;1363;2029;2848;4119;5527;7076;8624;10204;11815;13457;15897;18305;20698;22966;25140;27158
+BinBoundaries(um);0.35;0.46;0.66;1.00;1.30;1.70;2.30;3.00;4.00;5.20;6.50;8.00;10.00;12.00;14.00;16.00;18.00;20.00;22.00;25.00;28.00;31.00;34.00;37.00;40.00
+BinWeightings;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65;1.65
+M_A(um);1.00
+M_B(um);2.50
+M_C(um);10.00
+MaxTOF(us);85.31
+AMSamplingIntervalCount;1
+AMIdleIntervalCount;0
+AMMaxDataArraysInFile;61798
+AMFanOnInIdle;0
+AMLaserOnInIdle;0
+TOFtoSFRfactor;58
+PVP(us);1.00
+BinWeightingIndex;2
+FanDAC_ON;1
+LaserDAC_ON;1
+FanDACval;255
+LaserDACval;130
+LaserSwitch;1
+AutoGainToggle;1
