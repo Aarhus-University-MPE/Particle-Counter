@@ -67,9 +67,10 @@ unsigned char SPI_in[86], SPI_in_index, ssPin_OPC;
 
 // Define custome functions:
 void InitRTC();
+void RTCCheck();
 void InitSD();
-void OpenSysData(String filename);
-void OpenStorage(String filename);
+void OpenSysData(const char* filename);
+void OpenStorage(const char* filename);
 void CloseSD(Stream &Port, File &FileName);
 void PrintFirmwareVer(Stream &port, File &Filename);
 void InitDevice(void);
@@ -100,8 +101,8 @@ DateTime now;
 DateTime Time;
 
 char TimeShort;
-char SystemData[]  = "SDyymmdd.txt";
-char StorageFile[] = "SFyymmdd.csv";
+char SystemData[20]  = "SDyymmdd.txt";
+char StorageFile[20] = "SFyymmdd.csv";
 
 void setup() {
   wdt_reset();          // Reset watchdog timer
@@ -123,10 +124,11 @@ void setup() {
   // Start RTC and configure current time and date.
   InitRTC();
 
-  // If the seial port is connected the RTC will reconfigure.
   if (Serial) {
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+   RTCCheck();  // Check Time and Date if serial port is available
   }
+
+  wdt_reset();  // Reset watchdog timer
 
   // Initialice the SD card stogare.
   InitSD();
@@ -135,6 +137,11 @@ void setup() {
   DateTime Time = rtc.now();
   sprintf(SystemData, "SD%02d%02d%02d.txt", Time.day(), Time.month(), Time.year() % 100);
   sprintf(StorageFile, "SF%02d%02d%02d.csv", Time.day(), Time.month(), Time.year() % 100);
+
+  Serial.print("SystemData file name: ");
+  Serial.println(SystemData);
+  Serial.print("Storage file name: ");
+  Serial.println(StorageFile);
 
   wdt_reset();  // Reset watchdog timer
 
@@ -181,6 +188,68 @@ void InitRTC() {
   wdt_reset();  // Reset watchdog timer
 }
 
+void RTCCheck() {
+  // Print current time and date for user to confirm.
+  DateTime Time = rtc.now();
+  Serial.print("RTC time and Date is: ");
+  Serial.print(Time.day());
+  Serial.print("/");
+  Serial.print(Time.month());
+  Serial.print("/");
+  Serial.print(Time.year());
+  Serial.print(" ");
+  Serial.print(Time.hour());
+  Serial.print(":");
+  Serial.print(Time.minute());
+  Serial.print(":");
+  Serial.println(Time.second());
+  Serial.println(F("If time is correct send 'ok' to continue, else send date and time in the format 'dd/mm/yyyy hh:mm:ss' to set RTC."));
+  Serial.flush();
+
+  wdt_reset();  // Reset watchdog timer
+
+  int secondsLeft = 30; // 30 second countdown
+
+  String input = "";
+
+  while (secondsLeft > 0) {
+    wdt_reset();  // Reset watchdog timer
+
+    Serial.print("Time left: ");
+    Serial.println(secondsLeft);
+
+    // Wait up to 1 second for user input
+    unsigned long tStart = millis();
+    while (millis() - tStart < 1000) {
+      if (Serial.available()) {
+        input = Serial.readStringUntil('\n');
+        input.trim();
+
+        if (input == "") {
+          continue; // Ignore empty input
+        }
+
+        if (input.equalsIgnoreCase("ok")) {
+          Serial.println(F("Continuing with current RTC time."));
+          return;
+        } else {
+          int d, m, y, h, min, s;
+          if (sscanf(input.c_str(), "%d/%d/%d %d:%d:%d", &d, &m, &y, &h, &min, &s) == 6) {
+            rtc.adjust(DateTime(y, m, d, h, min, s));
+            Serial.println(F("RTC updated!"));
+            return;
+          } else {
+            Serial.println(F("Invalid format. Please send 'ok' or date and time as 'dd/mm/yyyy hh:mm:ss'"));
+          }
+        }
+      }
+      delay(50); // Small delay to avoid busy-waiting
+    }
+    secondsLeft--;
+  }
+  // After 30 seconds, function exits and continues with whatever time is set
+}
+
 void InitSD() {  // SD storage
   if (!SD.begin(SD_CS)) {
     Serial.println("initialization of SD failed!");
@@ -194,10 +263,10 @@ void InitSD() {  // SD storage
   wdt_reset();  // Reset watchdog timer
 }
 
-void OpenSysData(String filename) {
-  SysData = SD.open(filename, FILE_WRITE | O_CREAT | O_APPEND);
+void OpenSysData(const char* filename) {
+  SysData = SD.open(filename, FILE_WRITE);
   if (!SysData) {
-    Serial.println("Failed to open or create Storage file");
+    Serial.println("Failed to open or create Data file");
     BlinkLED(4, red);
     while (1);  // Kan blive kommenteret ud for at ignorere at den tror filen ikke er oprettet
   } else {
@@ -209,8 +278,8 @@ void OpenSysData(String filename) {
   }
 }
 
-void OpenStorage(String filename) {
-  Storage = SD.open(filename, FILE_WRITE | O_CREAT | O_APPEND);
+void OpenStorage(const char* filename) {
+  Storage = SD.open(filename, FILE_WRITE);
   if (!Storage) {
     Serial.println("Failed to open or create Storage file");
     BlinkLED(5, red);
