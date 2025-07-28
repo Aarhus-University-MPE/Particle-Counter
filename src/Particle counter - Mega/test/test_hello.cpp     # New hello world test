@@ -1,0 +1,15 @@
+#include <Arduino.h>
+#include <unity.h>
+
+void test_hello() {
+    TEST_ASSERT_EQUAL_STRING("Hello", "Hello");
+}
+
+void setup() {
+    UNITY_BEGIN();
+    RUN_TEST(test_hello);
+    UNITY_END();
+}
+
+void loop() {
+}

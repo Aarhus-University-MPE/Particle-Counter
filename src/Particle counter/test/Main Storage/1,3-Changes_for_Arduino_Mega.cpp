@@ -25,22 +25,6 @@ Adding more Slave Select pins will allow multiple OPC-N3 devices on one SPI bus.
 Only one Slave Select pin should be active at any time.
 *****************/
 
-/////////////////////// Jeppe Fogh Additions ///////////////////////
-/* This code has been modified by Jeppe Fogh to run on Arduino UNO R3.
-   It has been modified to use the SoftwareSPI library to bitbang the SPI communication
-   with the OPC-N3 sensor. The code is designed to run continuously, turning the fan on
-   and off while keeping the light on for saving power.
-   The code is structured to be compatible with C++11 standards.
-
-    The code includes functions for initializing the RTC, SD card, and OPC sensor,
-    reading and writing data, and managing the main loop for continuous operation.
-
-    The code uses the RTClib library for RTC management, the SD library for file handling,
-    and the SoftwareSPI library for bit-banging SPI communication with the OPC-N3 sensor.
-    The main loop reads data from the OPC-N3 sensor, processes it, and saves it to the SD card
-    while also printing it to the serial port for monitoring.
-*/
-
 #include <Arduino.h>
 #include <RTClib.h>
 #include <SD.h>
