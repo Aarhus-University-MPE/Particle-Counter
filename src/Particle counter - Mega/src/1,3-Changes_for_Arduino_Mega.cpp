@@ -25,6 +25,22 @@ Adding more Slave Select pins will allow multiple OPC-N3 devices on one SPI bus.
 Only one Slave Select pin should be active at any time.
 *****************/
 
+/////////////////////// Jeppe Fogh Additions ///////////////////////
+/* This code has been modified by Jeppe Fogh to run on Arduino UNO R3.
+   It has been modified to use the SoftwareSPI library to bitbang the SPI communication
+   with the OPC-N3 sensor. The code is designed to run continuously, turning the fan on
+   and off while keeping the light on for saving power.
+   The code is structured to be compatible with C++11 standards.
+
+    The code includes functions for initializing the RTC, SD card, and OPC sensor,
+    reading and writing data, and managing the main loop for continuous operation.
+
+    The code uses the RTClib library for RTC management, the SD library for file handling,
+    and the SoftwareSPI library for bit-banging SPI communication with the OPC-N3 sensor.
+    The main loop reads data from the OPC-N3 sensor, processes it, and saves it to the SD card
+    while also printing it to the serial port for monitoring.
+*/
+
 #include <Arduino.h>
 #include <RTClib.h>
 #include <SD.h>
@@ -50,8 +66,8 @@ Only one Slave Select pin should be active at any time.
 #define SD_CS         10
 
 // LED's to indicate states
-#define green         14
-#define red           15
+#define green         54
+#define red           55
 
 // Declare global SPI communicasion for OPC.
 SoftwareSPI OPC_SPI(OPC_SCK, OPC_MOSI, OPC_MISO, OPC_CS);
@@ -130,13 +146,15 @@ void setup() {
 
   wdt_reset();  // Reset watchdog timer
 
+  // pinMode(SD_CS, OUTPUT);
+
   // Initialice the SD card stogare.
   InitSD();
 
   // Creat filenames for SD storage.
   DateTime Time = rtc.now();
-  sprintf(SystemData, "SD%02d%02d%02d.txt", Time.day(), Time.month(), Time.year() % 100);
-  sprintf(StorageFile, "SF%02d%02d%02d.csv", Time.day(), Time.month(), Time.year() % 100);
+  sprintf(SystemData, "SD%02d%02d%02d.txt", Time.year(), Time.month(), Time.day() % 100);
+  sprintf(StorageFile, "SF%02d%02d%02d.csv", Time.year(), Time.month(), Time.day() % 100);
 
   Serial.print("SystemData file name: ");
   Serial.println(SystemData);
@@ -248,6 +266,10 @@ void RTCCheck() {
     secondsLeft--;
   }
   // After 30 seconds, function exits and continues with whatever time is set
+  BlinkLED(2, green);
+  wdt_reset();  // Reset watchdog timer
+  delay(1000);
+  Serial.println(F("No valid input received. Continuing with current RTC time."));
 }
 
 void InitSD() {  // SD storage
@@ -279,6 +301,7 @@ void OpenSysData(const char* filename) {
 }
 
 void OpenStorage(const char* filename) {
+  // digitalWrite(SD_CS, LOW);  // Set CS pin low to select SD card
   Storage = SD.open(filename, FILE_WRITE);
   if (!Storage) {
     Serial.println("Failed to open or create Storage file");
@@ -295,7 +318,7 @@ void OpenStorage(const char* filename) {
 
 void CloseSD(Stream &Port, File &FileName) {
   FileName.close();
-  digitalWrite(SD_CS, HIGH);
+  // digitalWrite(SD_CS, HIGH);
   Port.println("SD Closed");
   BlinkLED(1, green);
   BlinkLED(1, red);
@@ -396,13 +419,18 @@ void loop() {
 
     // Creats the storage file name, new file if the previus is a day old.
     DateTime Time = rtc.now();
-    sprintf(StorageFile, "SF%02d%02d%02d.csv", Time.day(), Time.month(), Time.year() % 100);
+    sprintf(StorageFile, "SF%02d%02d%02d.csv", Time.year(), Time.month(), Time.day() % 100);
     delay(5);
 
     OpenStorage(StorageFile);
     delay(50);
 
     wdt_reset();  // Reset watchdog timer
+
+    // If the file is new (or empty), write the headers.
+    if (Storage && Storage.size() == 0) {
+      PrintDataLabels(Serial, Storage);  // Print labels to serial port
+    }
 
     // Switch power ON to fan and laser
     // StartOPC(); The Fan should not be stopped, so we only need to turn the laser back on
@@ -433,7 +461,7 @@ void loop() {
     CloseSD(Serial, Storage);
 
     Serial.println("Waiting until next cycle");
-    Storage.println("Waiting until next cycle");
+    // Storage.println("Waiting until next cycle");  // Needs to be befor CloseSD if it is to be printed to the file.
   }
 }
 
